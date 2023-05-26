@@ -7,7 +7,7 @@
 
 defined('BASEPATH') or exit('No direct script access allowed');
 
-Class Players_rank extends CI_Controller
+class Players_rank extends Xban_Controller
 {
     function __construct()
     {
@@ -39,7 +39,7 @@ Class Players_rank extends CI_Controller
 
         $this->pagination->initialize($config);
 
-        $data['title'] = 'XBAN Origin || Players Rank';
+        $data['title'] = 'Players Rank';
 
         $data['start'] = $this->uri->segment(3);
         $data['list'] = $this->playerlist->get_players2($config['per_page'], $data['start']);
@@ -50,5 +50,3 @@ Class Players_rank extends CI_Controller
 }
 
 // This Code Generated Automatically By EyeTracker Snippets. //
-
-?>

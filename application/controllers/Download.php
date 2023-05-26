@@ -7,7 +7,7 @@
 
 defined('BASEPATH') or exit('No direct script access allowed');
 
-Class Download extends CI_Controller
+class Download extends Xban_Controller
 {
     function __construct()
     {
@@ -16,11 +16,10 @@ Class Download extends CI_Controller
     }
     function index()
     {
-        $data['title'] = 'XBAN Origin || Download';
-
-        $data['client'] = $this->download->get_client();
-        $data['launcher'] = $this->download->get_launcher();
-        $data['supportapp'] = $this->download->get_supportapp();
+        $data['title'] = 'Download';
+        $data['client'] = $this->download->ModulRead(1);
+        $data['launcher'] = $this->download->ModulRead(2);
+        $data['supportapp'] = $this->download->ModulRead(3);
 
         $data['content'] = 'main/content/download/content_download';
         $this->load->view('main/layout/wrapper', $data, FALSE);
@@ -28,5 +27,3 @@ Class Download extends CI_Controller
 }
 
 // This Code Generated Automatically By EyeTracker Snippets. //
-
-?>

@@ -2,7 +2,7 @@
     <div class="auto-container">
         <div class="inner-container clearfix">
             <ul class="bread-crumb clearfix">
-                <li><a href="<?php echo base_url('home') ?>">Home</a></li>
+                <li><a href="<?= base_url() . index_page() . '/home' ?>">Home</a></li>
                 <li>Download</li>
             </ul>
             <h1>Download</h1>
@@ -17,7 +17,7 @@
                 <h1 class="text-center text-white" style="text-transform: uppercase;">Client</h1>
                 <div class="container">
                     <div class="row justify-content-center mt-5 mb-5">
-                        <?php foreach ($client as $row) : ?>
+                        <?php foreach ($client as $key => $value) : ?>
                             <div class="col-lg-4 col-md-4 col-sm-4 mt-5">
                                 <div class="nk-feature-2 text-center">
                                     <div class="nk-feature-title">
@@ -26,14 +26,14 @@
                                         </div>
                                     </div>
                                     <div class="nk-feature-cont">
-                                        <h2 class="text-white"><?php echo $row['file_name'] ?></h2>
-                                        <p class="text-white">Size: <?php echo $row['size'] ?></p>
+                                        <h2 class="text-white"><?= $value['file_name'] ?></h2>
+                                        <p class="text-white">Size: <?= $value['file_size'] ?></p>
                                         <br>
-                                        <a href="https://<?php echo $row['file_url'] ?>" target="_blank" class="btn btn-outline-primary">Download</a>
+                                        <a href="<?= $value['file_url'] ?>" target="_blank" class="btn btn-outline-primary">Download</a>
                                     </div>
                                 </div>
                             </div>
-                        <?php endforeach; ?>
+                        <?php endforeach ?>
                     </div>
                 </div>
             </div>
@@ -41,7 +41,7 @@
                 <h1 class="text-center text-white" style="text-transform: uppercase;">Launcher</h1>
                 <div class="container">
                     <div class="row justify-content-center mt-5 mb-5">
-                        <?php foreach ($launcher as $row) : ?>
+                        <?php foreach ($launcher as $key => $value) : ?>
                             <div class="col-lg-4 col-md-4 col-sm-4 mt-5">
                                 <div class="nk-feature-2 text-center">
                                     <div class="nk-feature-title">
@@ -50,14 +50,14 @@
                                         </div>
                                     </div>
                                     <div class="nk-feature-cont">
-                                        <h2 class="text-white"><?php echo $row['file_name'] ?></h2>
-                                        <p class="text-white">Size: <?php echo $row['size'] ?></p>
+                                        <h2 class="text-white"><?= $value['file_name'] ?></h2>
+                                        <p class="text-white">Size: <?= $value['file_size'] ?></p>
                                         <br>
-                                        <a href="https://<?php echo $row['file_url'] ?>" target="_blank" class="btn btn-outline-primary">Download</a>
+                                        <a href="<?= $value['file_url'] ?>" target="_blank" class="btn btn-outline-primary">Download</a>
                                     </div>
                                 </div>
                             </div>
-                        <?php endforeach; ?>
+                        <?php endforeach ?>
                     </div>
                 </div>
             </div>
@@ -65,7 +65,7 @@
                 <h1 class="text-center text-white" style="text-transform: uppercase;">Support Application</h1>
                 <div class="container">
                     <div class="row justify-content-center mt-5 mb-5">
-                        <?php foreach ($supportapp as $row) : ?>
+                        <?php foreach ($supportapp as $key => $value) : ?>
                             <div class="col-lg-4 col-md-4 col-sm-4 mt-5">
                                 <div class="nk-feature-2 text-center">
                                     <div class="nk-feature-title">
@@ -74,14 +74,14 @@
                                         </div>
                                     </div>
                                     <div class="nk-feature-cont">
-                                        <h2 class="text-white"><?php echo $row['file_name'] ?></h2>
-                                        <p class="text-white">Size: <?php echo $row['size'] ?></p>
+                                        <h2 class="text-white"><?= $value['file_name'] ?></h2>
+                                        <p class="text-white">Size: <?= $value['file_size'] ?></p>
                                         <br>
-                                        <a href="https://<?php echo $row['file_url'] ?>" target="_blank" class="btn btn-outline-primary">Download</a>
+                                        <a href="<?= $value['file_url'] ?>" target="_blank" class="btn btn-outline-primary">Download</a>
                                     </div>
                                 </div>
                             </div>
-                        <?php endforeach; ?>
+                        <?php endforeach ?>
                     </div>
                 </div>
             </div>

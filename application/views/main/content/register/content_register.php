@@ -2,7 +2,7 @@
     <div class="auto-container">
         <div class="inner-container clearfix">
             <ul class="bread-crumb clearfix">
-                <li><a href="<?php echo base_url('home') ?>">Home</a></li>
+                <li><a href="<?= base_url() . index_page() . '/home' ?>">Home</a></li>
                 <li>Register</li>
             </ul>
             <h1>Register</h1>
@@ -16,29 +16,28 @@
             <div class="col-lg-6 col-lg-offset-3">
                 <div class="default-form contact-form">
                     <div id="result">
-                    <?php if ($this->session->flashdata('false')) : ?>
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                            <?php echo $this->session->flashdata('false') ?><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        </div>
-                    <?php endif; ?>
-                    <?php if ($this->session->flashdata('true')) : ?>
-                        <div class="alert alert-success alert-dismissible fade show" role="alert">
-                            <?php echo $this->session->flashdata('true') ?><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        </div>
-                    <?php endif; ?>
+                        <?php if ($this->session->flashdata('false')) : ?>
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <?= $this->session->flashdata('false') ?><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            </div>
+                        <?php elseif ($this->session->flashdata('false')) : ?>
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <?= $this->session->flashdata('true') ?><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            </div>
+                        <?php endif ?>
                     </div>
-                    <?php echo form_open(base_url('register'), '') ?>
+                    <?= form_open(base_url() . index_page() . '/register', 'autocomplete="off"') ?>
                     <div class="form-group">
-                        <input type="text" name="username" placeholder="Enter Your Username" value="<?php echo set_value('username') ?>" onblur="checkUsername()" minlength="4" maxlength="16" autocomplete="off" autofocus required>
-                    </div>
-                    <div class="form-group">
-                        <input type="text" name="email" placeholder="Enter Your email" value="<?php echo set_value('email') ?>" autocomplete="off" required>
+                        <input type="text" name="username" placeholder="Enter Your Username" value="<?= set_value('username') ?>" minlength="4" maxlength="16" autofocus required>
                     </div>
                     <div class="form-group">
-                        <input type="password" name="password" placeholder="Enter Your Password" value="<?php echo set_value('password') ?>" minlength="4" maxlength="16" autocomplete="off" required>
+                        <input type="text" name="email" placeholder="Enter Your email" value="<?= set_value('email') ?>" required>
                     </div>
                     <div class="form-group">
-                        <input type="password" name="re_password" placeholder="Enter Your Re-Password" value="<?php echo set_value('re_password') ?>" minlength="4" maxlength="16" autocomplete="off" required>
+                        <input type="password" name="password" placeholder="Enter Your Password" minlength="4" maxlength="16" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" name="re_password" placeholder="Enter Your Re-Password" minlength="4" maxlength="16" required>
                     </div>
                     <div class="form-group">
                         <select name="hint_question" required>
@@ -61,29 +60,28 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <input type="text" name="hint_answer" placeholder="Enter Your Hint Answer" value="<?php echo set_value('hint_answer') ?>" autocomplete="off" required>
+                        <input type="text" name="hint_answer" placeholder="Enter Your Hint Answer" value="<?= set_value('hint_answer') ?>" required>
                     </div>
                     <br>
                     <div class="form-group">
                         <button type="submit" class="theme-btn btn-block btn-style-four"><span class="btn-title">REGISTER</span></button>
                     </div>
                     <script>
-                    function checkUsername(){
-                        var username = $("[name='username']").val();
-
-                        $.ajax({
-                            type: 'GET',
-                            url: '<?php echo base_url('register/checkusername?username=') ?>'+ username +'',
-                            dataType: 'json',
-                            success : function(result) {
-                                $("#result").html(result)
-                            },
-                            error : function(result) {
-                                $("#result").html('<div class="alert alert-danger alert-dismissible fade show" role="alert">Failed To Check Username. Please Contact DEV / GM For Detail Information.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>')
-
-                            }
-                        })
-                    }
+                        $(document).ready(() => {
+                            $('input[name="username"]').on('blur', () => {
+                                $.ajax({
+                                    url: `<?= base_url() . index_page() . '/register/checkusername?username=' ?>${$('input[name="username"]').val()}`,
+                                    type: 'GET',
+                                    dataType: 'HTML',
+                                    success: (data) => {
+                                        $('#result').html(data);
+                                    },
+                                    error: () => {
+                                        $("#result").html('<div class="alert alert-danger alert-dismissible fade show" role="alert">Failed To Check Username. Please Contact DEV / GM For Detail Information.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
+                                    }
+                                });
+                            });
+                        });
                     </script>
                 </div>
             </div>

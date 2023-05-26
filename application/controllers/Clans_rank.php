@@ -7,7 +7,7 @@
 
 defined('BASEPATH') or exit('No direct script access allowed');
 
-Class Clans_rank extends CI_Controller
+Class Clans_rank extends Xban_Controller
 {
     function __construct()
     {
@@ -39,7 +39,7 @@ Class Clans_rank extends CI_Controller
 
         $this->pagination->initialize($config);
 
-        $data['title'] = 'XBAN Origin || Clans Rank';
+        $data['title'] = 'Clans Rank';
 
         $data['start'] = $this->uri->segment(3);
         $data['list'] = $this->clanlist->get_clans2($config['per_page'], $data['start']);
@@ -50,5 +50,3 @@ Class Clans_rank extends CI_Controller
 }
 
 // This Code Generated Automatically By EyeTracker Snippets. //
-
-?>

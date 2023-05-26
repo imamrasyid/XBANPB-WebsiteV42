@@ -2,7 +2,7 @@
     <div class="auto-container">
         <div class="inner-container clearfix">
             <ul class="bread-crumb clearfix">
-                <li><a href="<?php echo base_url('home') ?>">Home</a></li>
+                <li><a href="<?php echo base_url() . index_page() . '/home' ?>">Home</a></li>
                 <li>Players Rank</li>
             </ul>
             <h1>Players Rank</h1>
@@ -45,7 +45,7 @@
                                             <button type="button" title="XBAN DEV" class="btn btn-outline-warning">XBAN DEV</button>
                                         <?php endif; ?>
                                     </td>
-                                    <td><?php echo number_format($row['exp'], '0',',','.') ?></td>
+                                    <td><?php echo number_format($row['exp'], '0', ',', '.') ?></td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php endif; ?>

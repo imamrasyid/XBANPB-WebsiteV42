@@ -9,7 +9,7 @@
 			</div>
 		</div>
 	</div>
-	
+
 	<!-- Footer Bottom -->
 	<div class="footer-bottom">
 		<div class="auto-container">
@@ -19,35 +19,36 @@
 			<div class="row clearfix">
 				<!-- Column -->
 				<div class="column col-lg-6 col-md-12 col-sm-12">
-					<div class="copyright">Copyright &copy; <a href="<?php if ($title != "XBAN Origin || Home"){echo base_url('home');}else{echo "";} ?>">XBAN Origin</a> <?php echo date('Y') ?>. Support By <a href="https://instagram.com/dev_eyetracker" target="_blank">EyeTracker.</a> All Rights Reserved.</div>
+					<div class="copyright">Copyright &copy; <a href="<?= $this->uri->segment(1) != 'home' ? base_url() . index_page() . '/home' : 'javascript:void(0)' ?>">XBAN Origin</a> 2020 - <?= date('Y') ?>. Support By <a href="https://instagram.com/dev_eyetracker" target="_blank">EyeTracker.</a> All Rights Reserved.</div>
 				</div>
 				<!-- Column -->
 				<div class="column col-lg-6 col-md-12 col-sm-12">
 					<ul class="social-icons">
-						<li><a href="#"><span class="fab fa-twitter"></span></a></li>
-						<li><a href="#"><span class="fab fa-facebook-square"></span></a></li>
-						<li><a href="#"><span class="fab fa-pinterest-p"></span></a></li>
-						<li><a href="#"><span class="fab fa-instagram"></span></a></li>
+						<li><a href="javascript:void(0)"><span class="fab fa-twitter"></span></a></li>
+						<li><a href="javascript:void(0)"><span class="fab fa-facebook-square"></span></a></li>
+						<li><a href="javascript:void(0)"><span class="fab fa-pinterest-p"></span></a></li>
+						<li><a href="javascript:void(0)"><span class="fab fa-instagram"></span></a></li>
 					</ul>
 				</div>
 			</div>
 		</div>
 	</div>
-	
+
 </footer>
-	
+
 </div>
 <!--End pagewrapper-->
 
-<script src="<?php echo base_url() ?>base/gamon/js/popper.min.js"></script>
-<script src="<?php echo base_url() ?>base/gamon/js/bootstrap.min.js"></script>
-<script src="<?php echo base_url() ?>base/gamon/js/jquery-ui.js"></script>
-<script src="<?php echo base_url() ?>base/gamon/js/jquery.fancybox.js"></script>
-<script src="<?php echo base_url() ?>base/gamon/js/owl.js"></script>
-<script src="<?php echo base_url() ?>base/gamon/js/appear.js"></script>
-<script src="<?php echo base_url() ?>base/gamon/js/wow.js"></script>
-<script src="<?php echo base_url() ?>base/gamon/js/scrollbar.js"></script>
-<script src="<?php echo base_url() ?>base/gamon/js/script.js"></script>
+<script src="<?= base_url() ?>base/gamon/js/popper.min.js"></script>
+<script src="<?= base_url() ?>base/gamon/js/bootstrap.min.js"></script>
+<script src="<?= base_url() ?>base/gamon/js/jquery-ui.js"></script>
+<script src="<?= base_url() ?>base/gamon/js/jquery.fancybox.js"></script>
+<script src="<?= base_url() ?>base/gamon/js/owl.js"></script>
+<script src="<?= base_url() ?>base/gamon/js/appear.js"></script>
+<script src="<?= base_url() ?>base/gamon/js/wow.js"></script>
+<script src="<?= base_url() ?>base/gamon/js/scrollbar.js"></script>
+<script src="<?= base_url() ?>base/gamon/js/script.js"></script>
 
 </body>
+
 </html>

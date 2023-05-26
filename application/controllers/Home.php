@@ -7,7 +7,7 @@
 
 defined('BASEPATH') or exit('No direct script access allowed');
 
-Class Home extends CI_Controller
+class Home extends Xban_Controller
 {
     function __construct()
     {
@@ -16,25 +16,15 @@ Class Home extends CI_Controller
     }
     function index()
     {
-        $data['title'] = 'XBAN Origin || Home';
+        $data['title'] = 'Home';
 
-        $data['quickslide'] = $this->home->get_quickslide();
-        $data['bestplayers'] = $this->home->get_bestplayers();
-        $data['bestclans'] = $this->home->get_bestclans();
+        // $data['quickslide'] = @$this->home->get_quickslide();
+        $data['bestplayers'] = $this->home->ModulReadPlayers(10);
+        $data['bestclans'] = $this->home->ModulReadClans(10);
 
         $data['content'] = 'main/content/home/content_home';
         $this->load->view('main/layout/wrapper', $data, FALSE);
     }
-    function logout()
-    {
-        $this->session->unset_userdata('username');
-        $this->session->unset_userdata('uid');
-        $this->session->unset_userdata('access_level');
-
-        redirect(base_url('home'), 'refresh');
-    }
 }
 
 // This Code Generated Automatically By EyeTracker Snippets. //
-
-?>

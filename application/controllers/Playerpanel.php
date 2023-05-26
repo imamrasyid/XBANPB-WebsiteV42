@@ -7,21 +7,21 @@
 
 defined('BASEPATH') or exit('No direct script access allowed');
 
-Class Playerpanel extends CI_Controller
+class Playerpanel extends Xban_Controller
 {
     function __construct()
     {
         parent::__construct();
+        $this->load->library('lib_a');
         $this->lib_a->Protect_Playerpanel();
         $this->load->model('main/playerpanel_model', 'playerpanel');
-        $this->load->library('lib_a');
         $this->load->database();
     }
     function index()
     {
-        $data['title'] = 'XBAN Origin || Player Panel';
+        $data['title'] = 'Player Panel';
 
-        $data['account'] = $this->playerpanel->get_playerdetails();
+        $data['account'] = $this->playerpanel->ModulRead();
 
         $data['content'] = 'main/content/playerpanel/content_playerpanel';
         $this->load->view('main/layout/wrapper', $data, FALSE);
@@ -31,17 +31,167 @@ Class Playerpanel extends CI_Controller
         $this->form_validation->set_rules(
             'code',
             'Code',
-            'required',
-            array('required' => '%s Cannot Be Empty')
+            'required'
         );
-        if ($this->form_validation->run() === FALSE)
-        {
-            $data['title'] = 'XBAN Origin || Redeem Code';
+        if ($this->form_validation->run()) {
+            $data = array(
+                'code' => $this->input->post('code', true)
+            );
+
+            $this->db->trans_start();
+            $this->db->select('*', TRUE);
+            $this->db->from('web_redeemcode');
+            $this->db->where('code', $data['code'], TRUE);
+
+            $web_redeemcode = $this->db->get()->row_array();
+            $this->db->trans_complete();
+
+            if ($this->db->trans_status()) {
+                if ($web_redeemcode != []) {
+                    $this->db->trans_start();
+                    $this->db->select('*', TRUE);
+                    $this->db->from('web_redeemcode_log');
+                    $this->db->where('player_id', $this->session->userdata('uid'), TRUE);
+                    $this->db->where('code', $data['code'], TRUE);
+
+                    $web_redeemcode_log = $this->db->get()->row_array();
+                    $this->db->trans_complete();
+
+                    if ($this->db->trans_status()) {
+                        if ($web_redeemcode_log != []) {
+                            $this->session->set_flashdata('false', 'You already use this code.');
+                            redirect(base_url() . index_page() . '/playerpanel/redeemcode', 'refresh');
+                        } else {
+                            $this->db->trans_start();
+                            $this->db->select(
+                                'web_redeemcode.id AS redeemcode_id,
+                                 web_redeemcode.item_id AS redeemcode_item_id,
+                                 web_redeemcode.duration AS redeemcode_duration,
+                                 web_redeecomde.total_used AS redeemcode_total_used,
+                                 shop.item_id AS shop_item_id,
+                                 shop.item_name AS shop_item_name',
+                                TRUE
+                            );
+                            $this->db->from('web_redeemcode');
+                            $this->db->join('shop', 'web_redeemcode.item_id=shop.item_id', 'LEFT', TRUE);
+
+                            $redeemcode = $this->db->get()->row_array();
+                            $this->db->trans_complete();
+
+                            if ($this->db->trans_status()) {
+                                $this->db->trans_start();
+                                $this->db->select('*', TRUE);
+                                $this->db->from('player_items');
+                                $this->db->where('owner_id', $this->session->userdata('uid'), TRUE);
+                                $this->db->where('item_id', $redeemcode['shop_item_id'], TRUE);
+
+                                $player_items = $this->db->get()->row_array();
+                                $this->db->trans_complete();
+
+                                if ($this->db->trans_status()) {
+                                    if ($player_items != []) {
+                                        switch ($player_items['equip']) {
+                                            case '1': {
+                                                    $current_count = $player_items['count'];
+                                                    $new_count = $current_count + $redeemcode['duration'];
+
+                                                    $current_count_total_used = $web_redeemcode['total_used'];
+                                                    $new_count_total_used = $current_count_total_used + 1;
+
+                                                    $this->db->trans_start();
+                                                    $this->db->where('object_id', $player_items['object_id'], TRUE);
+                                                    $this->db->update('player_items', array('count' => $new_count));
+                                                    $this->db->trans_complete();
+
+                                                    $this->db->trans_start();
+                                                    $this->db->where('id', $web_redeemcode['id'], TRUE);
+                                                    $this->db->update('web_redeemcode', array('total_used' => $new_count_total_used));
+                                                    $this->db->trans_complete();
+
+                                                    $this->db->trans_start();
+                                                    $this->db->insert('web_redeemcode_log', array(
+                                                        'player_id' => $this->session->userdata('uid'),
+                                                        'code' => $web_redeemcode['code'],
+                                                        'created_at' => date('Y-m-d H:i:s')
+                                                    ), TRUE);
+                                                    $this->db->trans_complete();
+
+                                                    if ($this->db->trans_status()) {
+                                                        $this->session->set_flashdata('true', 'Congratulations, you received ' . $redeemcode['shop_item_name'] . '.');
+                                                        redirect(base_url() . index_page() . '/playerpanel/redeemcode', 'refresh');
+                                                    } else {
+                                                        $this->session->set_flashdata('false', 'Error: ' . $this->db->error()['message'] . '.');
+                                                        redirect(base_url() . index_page() . '/playerpanel/redeemcode', 'refresh');
+                                                    }
+                                                    break;
+                                                }
+                                            case '2':
+                                            case '3':
+
+                                            default: {
+                                                    $this->session->set_flashdata('false', 'You already have this item with equipped state or permanent state.');
+                                                    redirect(base_url() . index_page() . '/playerpanel/redeemcode', 'refresh');
+                                                    break;
+                                                }
+                                        }
+                                    } else {
+                                        $this->db->trans_start();
+                                        $this->db->insert('player_items', array(
+                                            'owner_id' => $this->session->userdata('uid'),
+                                            'item_id' => $web_redeemcode['item_id'],
+                                            'item_name' => $redeemcode['shop_item_name'],
+                                            'count' => $web_redeemcode['duration'],
+                                            'category' => $this->lib_a->GetItemCategory($web_redeemcode['item_id']),
+                                            'equip' => '1'
+                                        ), TRUE);
+                                        $this->db->trans_complete();
+
+                                        $this->db->trans_start();
+                                        $this->db->where('id', $web_redeemcode['id'], TRUE);
+                                        $this->db->update('web_redeemcode', array('total_used' => $new_count_total_used));
+                                        $this->db->trans_complete();
+
+                                        $this->db->trans_start();
+                                        $this->db->insert('web_redeemcode_log', array(
+                                            'player_id' => $this->session->userdata('uid'),
+                                            'code' => $web_redeemcode['code'],
+                                            'created_at' => date('Y-m-d H:i:s')
+                                        ), TRUE);
+                                        $this->db->trans_complete();
+
+                                        if ($this->db->trans_status()) {
+                                            $this->session->set_flashdata('true', 'Congratulations, you received ' . $redeemcode['shop_item_name'] . '.');
+                                            redirect(base_url() . index_page() . '/playerpanel/redeemcode', 'refresh');
+                                        } else {
+                                            $this->session->set_flashdata('false', 'Error: ' . $this->db->error()['message'] . '.');
+                                            redirect(base_url() . index_page() . '/playerpanel/redeemcode', 'refresh');
+                                        }
+                                    }
+                                }
+                            } else {
+                                $this->session->set_flashdata('false', 'Error: ' . $this->db->error()['message']);
+                                redirect(base_url() . index_page() . '/playerpanel/redeemcode', 'refresh');
+                            }
+                        }
+                    } else {
+                        $this->session->set_flashdata('error', 'Error: ' . $this->db->error()['message']);
+                        redirect(base_url() . index_page() . '/playerpanel/redeemcode', 'refresh');
+                    }
+                } else {
+                    $this->session->set_flashdata('false', 'Invalid redeem code.');
+                    redirect(base_url() . index_page() . '/playerpanel/redeemcode', 'refresh');
+                }
+            }
+        } else {
+            $data['title'] = 'Redeem Code';
             $data['content'] = 'main/content/playerpanel/content_redeemcode';
             $this->load->view('main/layout/wrapper', $data, FALSE);
         }
-        else 
-        {
+        if ($this->form_validation->run() === FALSE) {
+            $data['title'] = 'Redeem Code';
+            $data['content'] = 'main/content/playerpanel/content_redeemcode';
+            $this->load->view('main/layout/wrapper', $data, FALSE);
+        } else {
             $this->playerpanel->redeemcode();
         }
     }
@@ -96,14 +246,11 @@ Class Playerpanel extends CI_Controller
                 'required' => '%s Cannot Be Empty'
             )
         );
-        if ($this->form_validation->run() === FALSE)
-        {
-            $data['title'] = 'XBAN Origin || Change Password';
+        if ($this->form_validation->run() === FALSE) {
+            $data['title'] = 'Change Password';
             $data['content'] = 'main/content/playerpanel/content_changepassword';
             $this->load->view('main/layout/wrapper', $data, FALSE);
-        }
-        else
-        {
+        } else {
             $this->playerpanel->changepassword();
         }
     }
@@ -133,32 +280,25 @@ Class Playerpanel extends CI_Controller
             'required',
             array('required' => '%s Cannot Be Empty')
         );
-        if ($this->form_validation->run() === FALSE) 
-        {
-            $data['title'] = 'XBAN Origin || Change Email';
+        if ($this->form_validation->run() === FALSE) {
+            $data['title'] = 'Change Email';
             $data['content'] = 'main/content/playerpanel/content_changeemail';
             $this->load->view('main/layout/wrapper', $data, FALSE);
-        }
-        else 
-        {
+        } else {
             $this->playerpanel->changeemail();
         }
     }
     function resetequipment()
     {
-        if (empty($_GET['token']))
-        {
+        if (empty($_GET['token'])) {
             echo json_encode('<div class="alert alert-danger alert-dismissible fade show" role="alert">Token Null. Please Contact DEV / GM For Detail Information.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
         }
-        if (!empty($_GET['token']))
-        {
+        if (!empty($_GET['token'])) {
             $hash_id = $this->lib_a->pass_encrypt($_SESSION['uid']);
-            if ($_GET['token'] != $hash_id)
-            {
+            if ($_GET['token'] != $hash_id) {
                 echo json_encode('<div class="alert alert-danger alert-dismissible fade show" role="alert">Token Not Matches.<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
             }
-            if ($_GET['token'] == $hash_id)
-            {
+            if ($_GET['token'] == $hash_id) {
                 $data = array(
                     'primary' => '100003004', // K-2
                     'secondary' => '601002003', // K-5
@@ -183,12 +323,9 @@ Class Playerpanel extends CI_Controller
                     'char_dino' => $data['chara_dino'],
                     'char_beret' => $data['chara_beret']
                 ));
-                if ($update)
-                {
+                if ($update) {
                     echo json_encode('<div class="alert alert-success alert-dismissible fade show" role="alert">Successfully Reset Equipment<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
-                }
-                else 
-                {
+                } else {
                     echo json_encode('<div class="alert alert-danger alert-dismissible fade show" role="alert">Failed Reset Equipment<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
                 }
             }
@@ -215,17 +352,14 @@ Class Playerpanel extends CI_Controller
                 'is_natural_no_zero' => '%s Invalid'
             )
         );
-        if ($this->form_validation->run() === FALSE) 
-        {
-            $data['title'] = 'XBAN Origin || Exchange Cash';
+        if ($this->form_validation->run() === FALSE) {
+            $data['title'] = 'Exchange Cash';
 
             $data['details'] = $this->playerpanel->get_playerdetails2();
-    
+
             $data['content'] = 'main/content/playerpanel/content_exchange';
             $this->load->view('main/layout/wrapper', $data, FALSE);
-        }
-        else 
-        {
+        } else {
             $this->playerpanel->exchangecash();
         }
     }
@@ -233,15 +367,11 @@ Class Playerpanel extends CI_Controller
     {
         $a = $this->db->get_where('accounts', array('player_id' => $_SESSION['uid']));
         $b = $a->row();
-        if ($b)
-        {
-            if ($b->hint_question != null && $b->hint_answer != null)
-            {
+        if ($b) {
+            if ($b->hint_question != null && $b->hint_answer != null) {
                 echo json_encode($b->hint_answer);
             }
-        }
-        else 
-        {
+        } else {
             echo json_encode('Major Error, Please Contact DEV / GM For Detail Information');
         }
     }
@@ -249,10 +379,8 @@ Class Playerpanel extends CI_Controller
     {
         $a = $this->db->get_where('accounts', array('player_id' => $_SESSION['uid']));
         $b = $a->row();
-        if ($b)
-        {
-            if ($b->hint_question == null || $b->hint_answer == null)
-            {
+        if ($b) {
+            if ($b->hint_question == null || $b->hint_answer == null) {
                 $this->form_validation->set_rules(
                     'hint_question',
                     'Hint Question',
@@ -265,19 +393,15 @@ Class Playerpanel extends CI_Controller
                     'required',
                     array('required' => '%s Cannot Be Empty')
                 );
-                if ($this->form_validation->run() === FALSE)
-                {
-                    $data['title'] = 'XBAN Origin || Create Hint';
+                if ($this->form_validation->run() === FALSE) {
+                    $data['title'] = 'Create Hint';
                     $data['content'] = 'main/content/playerpanel/content_createhint.php';
                     $this->load->view('main/layout/wrapper', $data, FALSE);
-                }
-                else 
-                {
+                } else {
                     $this->playerpanel->create_hint();
                 }
             }
-            if ($b->hint_question != null || $b->hint_answer != null)
-            {
+            if ($b->hint_question != null || $b->hint_answer != null) {
                 $this->session->set_flashdata('false', 'You Already Create Hint');
                 redirect(base_url('playerpanel'), 'refresh');
             }
@@ -286,5 +410,3 @@ Class Playerpanel extends CI_Controller
 }
 
 // This Code Generated Automatically By EyeTracker Snippets. //
-
-?>

@@ -2,7 +2,7 @@
     <div class="auto-container">
         <div class="inner-container clearfix">
             <ul class="bread-crumb clearfix">
-                <li><a href="<?php echo base_url('home') ?>">Home</a></li>
+                <li><a href="<?= base_url() . index_page() . '/home' ?>">Home</a></li>
                 <li>Clans Rank</li>
             </ul>
             <h1>Clans Rank</h1>
@@ -26,21 +26,20 @@
                             <tr>
                                 <td colspan="5">Clans Data Not Found</td>
                             </tr>
-                        <?php endif; ?>
-                        <?php if ($list != null) : ?>
-                            <?php foreach ($list as $row) : ?>
+                        <?php else : ?>
+                            <?php foreach ($list as $key => $value) : ?>
                                 <tr>
-                                    <td><?php echo ++$start ?></td>
-                                    <td><img src="<?php echo base_url() ?>base/gamon/images/img_clan/<?php echo $row['clan_rank'] ?>.jpg" alt="<?php echo $row['clan_rank'] ?>"></td>
-                                    <td><?php echo $row['clan_name'] ?></td>
-                                    <td><?php echo number_format($row['clan_exp'], '0',',','.') ?></td>
+                                    <td><?= ++$start ?></td>
+                                    <td><img src="<?= base_url('base/gamon/images/img_clan/' . $value['clan_rank'] . '.jpg') ?>" alt="<?= $value['clan_rank'] ?>"></td>
+                                    <td><?= $value['clan_name'] ?></td>
+                                    <td><?= number_format($value['clan_exp'], '0', ',', '.') ?></td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php endif; ?>
                     </tbody>
                 </table>
             </div>
-            <?php echo $this->pagination->create_links(); ?>
+            <?= $this->pagination->create_links(); ?>
         </div>
     </div>
 </section>
